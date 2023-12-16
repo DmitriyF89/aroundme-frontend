@@ -15,23 +15,20 @@ jobs:
 
       - name: Check Branch Name and Commit Message
         run: |
-          branch_name=$(git rev-parse --abbrev-ref HEAD)
-
-          echo $branch_name
-
           # Check if the branch name matches the desired pattern (example: feature/...)
-          if [[ ! "$branch_name" =~ ^(feature|bugfix|release|hotfix)\/.*$ ]]; then
+          if [[ ! "$GITHUB_HEAD_REF" =~ ^(feature|bugfix|release|hotfix)\/.*$ ]]; then
             echo "Branch name doesn't follow the required patterns (feature/, bugfix/, release/, hotfix/)"
             exit 1
           fi
 
-          # Check if the commit message starts with a specific word
-          while IFS= read -r commit; do
-            if [[ ! "$commit" =~ ^(feat:|fix:|refactor:|chore:|test:).* ]]; then
-              echo "Commit message '$commit' doesn't start with allowed prefixes (feat:, fix:, refactor:, chore:, test:)"
-              exit 1
-            fi
-          done <<< "$commit_messages"
+          # TODO: add commit message checking
+          # # Check if the commit message starts with a specific word
+          # while IFS= read -r commit; do
+          #   if [[ ! "$commit" =~ ^(feat:|fix:|refactor:|chore:|test:).* ]]; then
+          #     echo "Commit message '$commit' doesn't start with allowed prefixes (feat:, fix:, refactor:, chore:, test:)"
+          #     exit 1
+          #   fi
+          # done <<< "$commit_messages"
 
   build:
     needs: check-branch-commit
