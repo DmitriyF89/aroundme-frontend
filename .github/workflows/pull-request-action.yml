@@ -6,13 +6,35 @@ on:
       - develop
 
 jobs:
-  branch_and_commit_validation:
+  check-branch-commit:
     runs-on: ubuntu-latest
-    extends:
-      template: .github/workflows/branch_commit_validation.yml
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check Branch Name and Commit Message
+        run: |
+          branch_name=$(git rev-parse --abbrev-ref HEAD)
+
+          echo $branch_name
+
+          # Check if the branch name matches the desired pattern (example: feature/...)
+          if [[ ! "$branch_name" =~ ^(feature|bugfix|release|hotfix)\/.*$ ]]; then
+            echo "Branch name doesn't follow the required patterns (feature/, bugfix/, release/, hotfix/)"
+            exit 1
+          fi
+
+          # Check if the commit message starts with a specific word
+          while IFS= read -r commit; do
+            if [[ ! "$commit" =~ ^(feat:|fix:|refactor:|chore:|test:).* ]]; then
+              echo "Commit message '$commit' doesn't start with allowed prefixes (feat:, fix:, refactor:, chore:, test:)"
+              exit 1
+            fi
+          done <<< "$commit_messages"
 
   build:
-    needs: branch_and_commit_validation
+    needs: check-branch-commit
     runs-on: ubuntu-latest
 
     steps:
