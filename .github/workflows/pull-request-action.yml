@@ -1,0 +1,64 @@
+name: pull_request_ci
+
+on:
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  check-branch-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check Branch Name and Commit Message
+        run: |
+          # Check if the branch name matches the desired pattern (example: feature/...)
+          if [[ ! "$GITHUB_HEAD_REF" =~ ^(feature|bugfix|release|hotfix)\/.*$ ]]; then
+            echo "Branch name doesn't follow the required patterns (feature/, bugfix/, release/, hotfix/)"
+            exit 1
+          fi
+
+          # TODO: add commit message checking
+          # # Check if the commit message starts with a specific word
+          # while IFS= read -r commit; do
+          #   if [[ ! "$commit" =~ ^(feat:|fix:|refactor:|chore:|test:).* ]]; then
+          #     echo "Commit message '$commit' doesn't start with allowed prefixes (feat:, fix:, refactor:, chore:, test:)"
+          #     exit 1
+          #   fi
+          # done <<< "$commit_messages"
+
+  build:
+    needs: check-branch-commit
+    runs-on: ubuntu-latest
+    name: build_spa
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test:unit
+
+      - name: Build
+        run: npm run build
+
+      # TODO: find a way to run e2e test
+      # - name: Install playwright
+      #   run: npx playwright install
+
+      # - name: E2E tests
+      #   run: npm run test:e2e
