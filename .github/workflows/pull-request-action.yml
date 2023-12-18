@@ -33,6 +33,7 @@ jobs:
   build:
     needs: check-branch-commit
     runs-on: ubuntu-latest
+    name: build_spa
 
     steps:
       - name: Checkout code
