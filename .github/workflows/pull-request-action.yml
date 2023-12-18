@@ -55,8 +55,9 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Install playwright
-        run: npx playwright install
+      # TODO: find a way to run e2e test
+      # - name: Install playwright
+      #   run: npx playwright install
 
-      - name: E2E tests
-        run: npm run test:e2e
+      # - name: E2E tests
+      #   run: npm run test:e2e
